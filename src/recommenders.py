@@ -307,3 +307,106 @@ def collab_filter_existing(user, util_matrix):
     
     
     return recommendations
+
+
+
+
+
+def content_based2(beer_list, sim_matrix):
+    
+    '''
+    recommends 10 beers based on 5 input beers of choice
+    
+    Inputs: lst - 5 beers to base recommendations on
+            DataFrame - beer similarity matrx
+            
+            
+    Returns: list - 10 beer names
+            
+    '''
+                
+    candidates = []
+                
+    for beer in beer_list:
+        
+        # dataframe with 10 rows (most similar beers), two columns (name, similarity)       
+                
+        similar_df = sim_matrix[beer].nlargest(11).reset_index().iloc[1:]
+        
+        
+        # add two most similar beers that are not already candidates for recommendation
+                
+        count = 0
+    
+        for i in range(10):
+            
+            name = similar_df.iloc[i, 0]
+            
+            if name in candidates:           
+                continue
+                
+            if count == 2:
+                break
+            
+            else:
+                candidates.append(name)
+                count += 1
+    
+    return candidates
+
+
+
+
+
+def content_based_existing2(user_name, sim_matrix, rating_df):
+    
+    '''
+    Recommends 10 beers to an existing user based on item to item similarity
+    
+
+    Inputs: str - customer profile name
+            dataframe - distance matrx
+            dataframe - all ratings for top 1000 most rated beers
+            
+    Returns: list - 10 beer names
+            
+    '''
+    
+    # dataframe of ratings by user of interest           
+                
+    user_df = rating_df[rating_df['review_profilename']==user_name].sort_values(by='review_overall', ascending=False)
+    
+    # top 5 highest rated beers by user            
+                
+    top_5_beers = list(user_df.iloc[:5]['beer_name'])
+
+    # candidates accumulator          
+                
+    candidates = []
+                
+    for beer in top_5_beers:
+        
+        # dataframe with 10 rows (most similar beers), two columns (name, similarity)       
+                
+        similar_df = sim_matrix[beer].nlargest(11).reset_index().iloc[1:]
+        
+        
+        # add two most similar beers that are not already candidates for recommendation
+                
+        count = 0
+    
+        for i in range(10):
+            
+            name = similar_df.iloc[i, 0]
+            
+            if name in candidates:           
+                continue
+                
+            if count == 2:
+                break
+            
+            else:
+                candidates.append(name)
+                count += 1
+    
+    return candidates
