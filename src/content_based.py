@@ -4,97 +4,6 @@ from sklearn.metrics.pairwise import cosine_similarity
 
 
 
-def collab_filter(input_beers, util_matrix):
-    '''
-    Recommends 10 beers based on user to user similarity 
-
-
-    inputs: lst - 5 beers on which to base recommendations
-        
-            DataFrame - utility matrix of users and beers
-    
-    returns: lst - 10 beer recommendations
-
-    '''
-
-    # add row for new user to utility matrix
-    
-    util_matrix.loc[len(util_matrix)] = 0
-    
-    
-    # populate ratings of input beers for new user
-    
-    util_matrix.iloc[len(util_matrix) - 1][input_beers] = 5
-    
-    
-    # create beer list and remove input beers
-    
-    beer_list = list(util_matrix.columns)
-    
-    for beer in input_beers:
-            beer_list.remove(beer)
-     
-    
-    # list of users         
-            
-    users = list((util_matrix.index))
-    
-    
-    # cosine similarities between new user and existing users
-    
-    cosims = np.array([ (cosine_similarity([util_matrix.iloc[-1][input_beers]], [util_matrix.loc[user][input_beers]]))[0][0] for user in users])
-    
-    
-    # add cosims as a column and change new user's to -100
-    
-    util_matrix['cosim'] = cosims
-    
-    util_matrix.loc[27061, 'cosim'] = -100
-    
-    
-    # sort user rows by cosine similarity
-
-    util_matrix = util_matrix.sort_values(by=['cosim'], ascending=False)
-    
-    
-    # fill in predicted ratings for user
-    
-    for beer in beer_list:
-    
-        # dataframe of 10 most similar users that have rated beer 
-    
-        df = util_matrix[util_matrix[beer]!=0].iloc[:10]
-    
-    
-        # assign rating to average of weighted reviews
-    
-        df['weighted_rating'] = df[beer] * df['cosim']
-    
-    
-        # assign rating to averaged weighted rating
-    
-        rating = np.mean(df['weighted_rating'])
-    
-    
-        # fill in predicted ratings for new user
-    
-        util_matrix.loc[27061, beer] = rating
-    
-    
-    
-    util_matrix = util_matrix.T.sort_values(27061, ascending=False).T
-    
-    
-    recommendations = list(util_matrix.columns[5:15])
-    
-    
-    return recommendations
-
-
-
-
-
-
 def content_based(beer_list, sim_matrix):
     
     '''
@@ -143,8 +52,6 @@ def content_based(beer_list, sim_matrix):
             recommendations.add(beer[0])
     
     return recommendations
-
-
 
 
 
@@ -209,111 +116,8 @@ def content_based_existing(user_name, sim_matrix, rating_df):
 
 
 
-
-
-def collab_filter_existing(user, util_matrix):
-    
-    '''
-    Recommends 10 beers to an existing user via collaborative filtering
-
-
-    inputs: str - username to make recommendations to
-        
-            DataFrame - utility matrix of users and beers
-    
-    returns: lst - 10 beer recommendations
-
-    '''
-    
-    
-    # determine input beers (5 highest rated by username)
-    
-    input_beers = list(util_matrix.T.sort_values(user, ascending=False).T.columns)[:5]
-    
-    
-
-    # add row for new user to utility matrix
-    
-    util_matrix.loc[len(util_matrix)] = 0
-    
-    
-    # populate ratings of input beers for new user
-    
-    util_matrix.iloc[len(util_matrix) - 1][input_beers] = 5
-    
-    
-    # create beer list and remove input beers
-    
-    beer_list = list(util_matrix.columns)
-    
-    for beer in input_beers:
-            beer_list.remove(beer)
-     
-    
-    # list of users         
-            
-    users = list((util_matrix.index))
-    
-    
-    # cosine similarities between new user and existing users
-    
-    cosims = np.array([ (cosine_similarity([util_matrix.iloc[-1][input_beers]], [util_matrix.loc[user][input_beers]]))[0][0] for user in users])
-    
-    
-    # add cosims as a column and change new user's to -100
-    
-    util_matrix['cosim'] = cosims
-    
-    util_matrix.loc[27061, 'cosim'] = -100
-    
-    
-    # sort user rows by cosine similarity
-
-    util_matrix = util_matrix.sort_values(by=['cosim'], ascending=False)
-    
-    
-    # fill in predicted ratings for user
-    
-    for beer in beer_list:
-    
-        # dataframe of 10 most similar users that have rated beer 
-    
-        df = util_matrix[util_matrix[beer]!=0].iloc[:10]
-    
-    
-        # assign rating to average of weighted reviews
-    
-        df['weighted_rating'] = df[beer] * df['cosim']
-    
-    
-        # assign rating to averaged weighted rating
-    
-        rating = np.mean(df['weighted_rating'])
-    
-    
-        # fill in predicted ratings for new user
-    
-        util_matrix.loc[27061, beer] = rating
-    
-    
-    # sort on predicted ratings
-    
-    util_matrix = util_matrix.T.sort_values(27061, ascending=False).T
-    
-    
-    # recommend top 10 (skipping top 5 input beers)
-    
-    recommendations = list(util_matrix.columns[5:15])
-    
-    
-    return recommendations
-
-
-
-
-
 def content_based2(beer_list, sim_matrix):
-    
+        
     '''
     recommends 10 beers based on 5 input beers of choice
     
@@ -359,7 +163,7 @@ def content_based2(beer_list, sim_matrix):
 
 
 def content_based_existing2(user_name, sim_matrix, rating_df):
-    
+        
     '''
     Recommends 10 beers to an existing user based on item to item similarity
     
@@ -410,3 +214,100 @@ def content_based_existing2(user_name, sim_matrix, rating_df):
                 count += 1
     
     return candidates
+
+
+
+
+
+
+
+def content_eval(rating_df, sim_matrix, username):
+    
+    '''
+    Computes difference between existing user's averaged actual ratings across top 10 
+    recommended beers and their overall average rating given
+    
+    Inputs: DataFrame - All user ratings of beers
+    
+            DataFrame - Distance/similarity matrix of choice 
+            
+            str - Profile username for consumer of choice
+    
+    Returns: float - ratings residual
+    
+    '''
+    
+    # 10 recommended beers for user of interest
+    
+    recs = content_based_existing(username, sim_matrix, rating_df)
+    
+    # dataframe of user's ratings
+    
+    user_df = rating_df[rating_df['review_profilename']==username]
+    
+    # user's average ratings given
+    
+    avg_user_rating = np.mean(user_df['review_overall'])
+    
+    # true ratings for recommended beers
+    
+    ratings = []
+    
+    # append user's ratings for recommended beers if they exist
+    
+    for beer in recs:
+        if beer in list(user_df['beer_name']):
+            ratings.append(float(user_df[user_df['beer_name']==beer]['review_overall']))
+    
+    # difference between average true ratings across 10 recommended beers and average overall rating given 
+    
+    return round(np.mean(ratings) - avg_user_rating, 2)
+
+
+
+
+
+
+
+
+def content2_eval(rating_df, sim_matrix, username):
+    
+    '''
+    Computes difference between existing user's averaged actual ratings across top 10 
+    recommended beers and their overall average rating given
+    
+    Inputs: DataFrame - All user ratings of beers
+    
+            DataFrame - Distance/similarity matrix of choice 
+            
+            str - Profile username for consumer of choice
+    
+    Returns: float - ratings residual
+    
+    '''
+    
+    # 10 recommended beers for user of interest
+    
+    recs = content_based_existing2(username, sim_matrix, rating_df)
+    
+    # dataframe of user's ratings
+    
+    user_df = rating_df[rating_df['review_profilename']==username]
+    
+    # user's average ratings given
+    
+    avg_user_rating = np.mean(user_df['review_overall'])
+    
+    # true ratings for recommended beers
+    
+    ratings = []
+    
+    # append user's ratings for recommended beers if they exist
+    
+    for beer in recs:
+        if beer in list(user_df['beer_name']):
+            ratings.append(float(user_df[user_df['beer_name']==beer]['review_overall']))
+    
+    # difference between average true ratings across 10 recommended beers and average overall rating given 
+    
+    return round(np.mean(ratings) - avg_user_rating, 2)
