@@ -3,13 +3,13 @@ import pandas as pd
 from sklearn.metrics.pairwise import cosine_similarity
 
 
-def content_based(beer_list, sim_matrix):
+def content_based(input_beers, sim_matrix):
         
     '''
-    recommends 10 beers based on similarity to 5 input beers of choice
-    
+    recommends 10 beers based on similarity to 5 input beers
+
     Inputs: lst - 5 beers to base recommendations on
-            DataFrame - beer similarity matrx
+            DataFrame - beer to beer similarity matrx
             
             
     Returns: list - 10 beer names
@@ -18,7 +18,7 @@ def content_based(beer_list, sim_matrix):
                 
     candidates = []
                 
-    for beer in beer_list:
+    for beer in input_beers:
         
         # dataframe with 10 rows (most similar beers), two columns (name, similarity)       
                 
@@ -33,7 +33,7 @@ def content_based(beer_list, sim_matrix):
             
             name = similar_df.iloc[i, 0]
             
-            if name in candidates:           
+            if name in candidates or name in input_beers:           
                 continue
                 
             if count == 2:
@@ -49,16 +49,17 @@ def content_based(beer_list, sim_matrix):
 
 
 
-def content_based_existing(user_name, sim_matrix, rating_df):
+def content_based_existing(username, reviews, sim_matrix):
         
     '''
     Recommends 10 beers to an existing user based on similarity to their top 5
                most highly rated beers
     
 
-    Inputs: str - customer profile name
-            dataframe - distance matrx
-            dataframe - all ratings for top 1000 most rated beers
+    Inputs: str - user profile name
+            dataframe - review log
+            dataframe - beer to beer similarity matrix
+            
             
     Returns: list - 10 beer names
             
@@ -66,7 +67,7 @@ def content_based_existing(user_name, sim_matrix, rating_df):
     
     # dataframe of ratings by user of interest           
                 
-    user_df = rating_df[rating_df['review_profilename']==user_name].sort_values(by='review_overall', ascending=False)
+    user_df = reviews[reviews['review_profilename']==username].sort_values(by='review_overall', ascending=False)
     
     # top 5 highest rated beers by user            
                 
@@ -106,12 +107,10 @@ def content_based_existing(user_name, sim_matrix, rating_df):
 
 
 
-
-def content_eval(rating_df, sim_matrix, username):
+def content_based_eval(username, reviews, sim_matrix):
     
     '''
-    Computes difference between existing user's averaged actual ratings across top 10 
-    recommended beers and their overall average rating given
+    Computes the average true percentile of recommended beers in a user's list of rated beers
     
     Inputs: DataFrame - All user ratings of beers
     
@@ -119,32 +118,43 @@ def content_eval(rating_df, sim_matrix, username):
             
             str - Profile username for consumer of choice
     
-    Returns: float - ratings residual
+    Returns: float - user's average true rating percentile for 10 recommended beers
     
     '''
     
     # 10 recommended beers for user of interest
     
-    recs = content_based_existing2(username, sim_matrix, rating_df)
+    recs = content_based_existing(username, reviews, sim_matrix)
     
-    # dataframe of user's ratings
     
-    user_df = rating_df[rating_df['review_profilename']==username]
+    # dataframe of user's ratings sorted descending
     
-    # user's average ratings given
+    user_df = reviews[reviews['review_profilename']==username].sort_values('review_overall')
     
-    avg_user_rating = np.mean(user_df['review_overall'])
     
-    # true ratings for recommended beers
+    # list of beers rated by user in order of lowest to highest ratings
     
-    ratings = []
+    beers_rated = list(user_df['beer_name'])
     
-    # append user's ratings for recommended beers if they exist
+    
+    # true percentiles accumulator
+    
+    percentiles = []
+    
+    
+    # accumulate percentiles 
     
     for beer in recs:
-        if beer in list(user_df['beer_name']):
-            ratings.append(float(user_df[user_df['beer_name']==beer]['review_overall']))
-    
-    # difference between average true ratings across 10 recommended beers and average overall rating given 
-    
-    return round(np.mean(ratings) - avg_user_rating, 2)
+        
+        for i, rated in enumerate(beers_rated):
+            
+            if beer == rated:
+                
+                percentiles.append((i+1)/len(beers_rated))
+        
+        
+    return round(np.mean(percentiles), 3) * 100
+
+
+
+

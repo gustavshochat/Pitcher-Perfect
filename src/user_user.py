@@ -4,14 +4,14 @@ from sklearn.metrics.pairwise import cosine_similarity
 
 
 
-def collab_filter(input_beers, util_matrix):
+def user_user(input_beers, util_matrix):
     '''
-    Recommends 10 beers based on user to user similarity 
+    Recommends 10 beers by way of user-user collaborative filtering 
 
 
     inputs: lst - 5 beers on which to base recommendations
         
-            DataFrame - utility matrix of users and beers
+            DataFrame - beer to user utility matrix
     
     returns: lst - 10 beer recommendations
 
@@ -81,9 +81,13 @@ def collab_filter(input_beers, util_matrix):
         util_matrix.loc[27061, beer] = rating
     
     
+
+    # sort by predicted ratings
     
     util_matrix = util_matrix.T.sort_values(27061, ascending=False).T
     
+
+    # return top 10 after input beers 
     
     recommendations = list(util_matrix.columns[5:15])
     
@@ -96,15 +100,15 @@ def collab_filter(input_beers, util_matrix):
 
 
 
-def collab_filter_existing(user, util_matrix):
+def user_user_existing(username, util_matrix):
     
     '''
-    Recommends 10 beers to an existing user via collaborative filtering
+    Recommends 10 beers to an existing user by way of user-user collaborative filtering
 
 
-    inputs: str - username to make recommendations to
+    inputs: str - user to make recommendations to
         
-            DataFrame - utility matrix of users and beers
+            DataFrame - beer to user utility matrix
     
     returns: lst - 10 beer recommendations
 
@@ -113,7 +117,7 @@ def collab_filter_existing(user, util_matrix):
     
     # determine input beers (5 highest rated by username)
     
-    input_beers = list(util_matrix.T.sort_values(user, ascending=False).T.columns)[:5]
+    input_beers = list(util_matrix.T.sort_values(username, ascending=False).T.columns)[:5]
     
     
 
@@ -196,46 +200,55 @@ def collab_filter_existing(user, util_matrix):
 
 
 
-
-def collab_eval(rating_df, util_matrix, username):
-        
+def user_user_eval(username, reviews, util_matrix):
+    
     '''
-    Computes the average difference between a user's true ratings for
-    10 recommended beers and their average rating across all beers
+    Computes the average true percentile of recommended beers in a user's list of rated beers
     
-    inputs: DataFrame - user ratings of beers
+    Inputs: str - Profile username for consumer of choice
     
-            DataFrame - beer/user utility matrix
+            DataFrame - review log
+    
+            DataFrame - beer to user utility matrix
             
-            str - name of existing user
-
+            
+    
+    Returns: float - user's average true rating percentile for 10 recommended beers
+    
     '''
     
+    # 10 recommended beers for user of interest
     
-    # generate recommendations for existing user
-    
-    recs = collab_filter_existing(username, util_matrix)
-    
-    
-    # create dataframe of user's ratings
-    
-    user_df = rating_df[rating_df['review_profilename']==username]
+    recs = user_user_existing(username, util_matrix)
     
     
-    # compute average rating given by user
+    # dataframe of user's ratings sorted descending
     
-    avg_user_rating = np.mean(user_df['review_overall'])
+    user_df = reviews[reviews['review_profilename']==username].sort_values('review_overall')
     
     
-    # accumulate true ratings of recommended beers
+    # list of beers rated by user in order of lowest to highest ratings
     
-    ratings = []
+    beers_rated = list(user_df['beer_name'])
+    
+    
+    # true percentiles accumulator
+    
+    percentiles = []
+    
+    
+    # accumulate percentiles 
     
     for beer in recs:
-        if beer in list(user_df['beer_name']):
-            ratings.append(float(user_df[user_df['beer_name']==beer]['review_overall']))
-    
+        
+        for i, rated in enumerate(beers_rated):
+            
+            if beer == rated:
+                
+                percentiles.append((i+1)/len(beers_rated))
+        
+        
+    return (round(np.mean(percentiles), 3)) * 100
 
-    # return average residual between true rating and average rating
 
-    return round(np.mean(ratings) - (avg_user_rating), 2)
+
