@@ -4,11 +4,11 @@ Building the optimal beer recommender using BeerAdvocate reviews from 1998-2011.
 
 ## Introduction
 
-Here I will showcase my efforts to design a high-performance recommendation engine capable of translating user preference inputs into 
+Here I will showcase my progress towards designing a high-performance recommendation engine capable of translating user preference inputs into 
 meaningful recommendations.
 
 Originally scraped from BeerAdvocate.com, this dataset was constructed and made available by Julian McAuley of UC San Diego's Computer Science Department and in
-its raw form contains roughly 1.5 million reviews (samples/dataset_sample.csv). 
+its raw form contains roughly 1.5 million reviews **(samples/dataset_sample.csv)**. 
 
 My progress in implementing this project will be showcased as follows:
 
@@ -51,7 +51,9 @@ their 5 highest rated beers as inputs). My metric of choice in doing so was the 
 to them (i.e. a performance score of 70 would imply that, on average, the beers recommended to a user fell within the 70th percentile of their ratings hierarchy). 
 
 
-## Content-Based Approach
+## Content-Based Approach (src/content_based.py)
+
+#### Performance Score - 87
 
 In this simple system, for each of the 5 input beers the 2 with the highest cosine similarity scores are recommended (with the exception of would-be repeats). 
 
@@ -84,7 +86,7 @@ When tested on existing users the content-based recommender achieved a performan
 the 79th percentile of users' true rating hierarchies. 
 
 
-## Collaborative Filtering: User-User
+## Collaborative Filtering: User-User (src/user_user.py)
 
 #### Performance Score - 87
 
@@ -128,12 +130,35 @@ boasting a performance score of **87**. This outcome is likely attributable to t
 users with extremely refined preferences as showcased by their review counts of nearly 1000 on average. 
 
 
-## Collaborative Filtering: Item-Item
+## Collaborative Filtering: Item-Item (src/item_item.py)
 
 #### Performance Score - 84
 
 Similar to the User-User approach, this system predicts a user's ratings for every beer in the database and makes recommendations accordingly.
 For each beer, ratings are predicted using the average historical rating weighted by the total cosine similarity score across the 5 input beers.
+
+<ins>Example input/output:</ins>
+
+- Input: 
+  - Bud Light
+  - Miller High Life
+  - Coors Light
+  - Pabst Blue Ribbon
+  - Miller Lite
+  
+ 
+ - Output: 
+  - Budweiser
+  - Rolling Rock Extra Pale
+  - Coors
+  - Corona Extra
+  - Miller Genuine Draft
+  - Heineken Lager Beer
+  - Labatt Blue
+  - Foster's Lager
+  - Michelob (Original Lager)
+  - Killian's Irish Red
+
 
 Given the same 5 input beers, the recommendations are far more sensible with regard to style and quality when compared to the user-user system.
 Additionally, with a performance score of 84, this model is more equipped to satisfy the extravagent preferences of the test group than
