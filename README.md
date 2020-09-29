@@ -44,7 +44,7 @@ to them (i.e. a performance score of 70 would imply that, on average, the beers 
 
 ## Content-Based Approach (src/content_based.py)
 
-#### Performance Score - 87
+#### Performance Score - 79
 
 In this simple system, for each of the 5 input beers the 2 with the highest cosine similarity scores are recommended (with the exception of would-be repeats). 
 
@@ -73,8 +73,7 @@ beers with significant brand overlap to the input set, averaging a 2.67 rating o
   - Amstel Light
  
  
-When tested on existing users the content-based recommender achieved a performance score of 79, meaning that its recommendations averaged in
-the 79th percentile of users' true rating hierarchies. 
+When tested on existing users the content-based recommender achieved a performance score of 79, meaning that its recommendations averaged in the 79th percentile of users' true rating hierarchies. 
 
 
 ## Collaborative Filtering: User-User (src/user_user.py)
