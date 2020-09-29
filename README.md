@@ -84,7 +84,7 @@ Using the input beers provided by the user, this algorithm creates a profile for
 For the remaining beers the averaged ratings assigned by the 10 most similar users, weighted by their cosine similarity scores to the input user, 
 are assigned as predicted ratings. The 10 beers with the highest predicted ratings are returned as recommendations. 
 
-Inputting the same 5 beers as in the previous example returned dramatically different results, averaging a 4.13 rating
+Inputting the same 5 beers as in the previous example gave dramatically different results, averaging a 4.13 rating
 across all reviews. Also defying intuition are the flavor profiles of the recommendation pool, exhibiting an array of intense IPAs and Stouts with
 only two of the returned beers being lagers. 
  
@@ -150,7 +150,7 @@ For each beer, ratings are predicted using the average historical rating weighte
     - Killian's Irish Red
 
 
-Given the same 5 input beers, the recommendations are far more sensible with regard to style and quality when compared to the user-user system.
+Given the same 5 input beers these recommendations are far more sensible with regard to style and quality when compared to the user-user system. The historical average rating of this selection most closely matches that of the input pool at 2.97. 
 Additionally, with a performance score of 84, this model is more equipped to satisfy the extravagent preferences of the test group than
 the content-based approach.
 
