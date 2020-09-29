@@ -10,15 +10,6 @@ meaningful recommendations.
 Originally scraped from BeerAdvocate.com, this dataset was constructed and made available by Julian McAuley of UC San Diego's Computer Science Department and in
 its raw form contains roughly 1.5 million reviews **(samples/dataset_sample.csv)**. 
 
-My progress in implementing this project will be showcased as follows:
-
- - Data Preprocessing & EDA
- - Content-Based Approach
- - User-User Collaborative Filtering
- - Item-Item Collaborative Filtering
- - Next Steps
-
-
 ## Preprocessing & EDA
 
 This dataset is quite sparse with regard to item-user pairings, comprising reviews by 33,874 users of 66,051 unique beers. 
