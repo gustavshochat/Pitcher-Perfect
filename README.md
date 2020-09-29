@@ -139,16 +139,16 @@ For each beer, ratings are predicted using the average historical rating weighte
   
  
  - Output: 
-  - Budweiser
-  - Rolling Rock Extra Pale
-  - Coors
-  - Corona Extra
-  - Miller Genuine Draft
-  - Heineken Lager Beer
-  - Labatt Blue
-  - Foster's Lager
-  - Michelob (Original Lager)
-  - Killian's Irish Red
+    - Budweiser
+    - Rolling Rock Extra Pale
+    - Coors
+    - Corona Extra
+    - Miller Genuine Draft
+    - Heineken Lager Beer
+    - Labatt Blue
+    - Foster's Lager
+    - Michelob (Original Lager)
+    - Killian's Irish Red
 
 
 Given the same 5 input beers, the recommendations are far more sensible with regard to style and quality when compared to the user-user system.
