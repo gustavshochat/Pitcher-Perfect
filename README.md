@@ -1,6 +1,8 @@
 # Pitcher Perfect
 
-Building the optimal beer recommender using BeerAdvocate reviews from 1998-2011. 
+*Building the optimal beer recommender using BeerAdvocate reviews from 1998-2011.*
+
+![](images/Beer-Cheers-300x300.png)
 
 ## Introduction
 
