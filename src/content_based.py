@@ -9,7 +9,7 @@ def content_based(input_beers, sim_matrix):
     recommends 10 beers based on similarity to 5 input beers
 
     Inputs: lst - 5 beers to base recommendations on
-            DataFrame - beer to beer similarity matrx
+            DataFrame - beer to beer similarity matrix
             
             
     Returns: list - 10 beer names
